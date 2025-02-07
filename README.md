@@ -83,6 +83,10 @@ Para desplegar este proyecto en un sistema en vivo:
 3. Asegúrate de que el entorno de Java esté correctamente configurado en el sistema en vivo.
 4. Ejecuta la clase HttpServer en tu máquina servidor.
 
+## Pruebas
+
+![img.png](img.png)
+
 ## Herramientas Usadas
 
 - Java - Lenguaje de programación utilizado
