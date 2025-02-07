@@ -1,8 +1,5 @@
 package co.eci.edu.arep;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-
 import static co.eci.edu.arep.HttpServer.start;
 import static co.eci.edu.arep.HttpServer.get;
 import static co.eci.edu.arep.HttpServer.staticfiles;

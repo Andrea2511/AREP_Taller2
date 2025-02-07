@@ -2,15 +2,11 @@ package co.eci.edu.arep;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
-import java.net.Socket;
-import java.util.function.BiFunction;
-
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+
 
 class HttpServerTest {
 

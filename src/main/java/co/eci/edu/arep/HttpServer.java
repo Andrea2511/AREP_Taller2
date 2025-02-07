@@ -12,6 +12,11 @@ public class HttpServer {
     private static String WEB_ROOT = "src/main/resources";
     private static Map<String, BiFunction<HttpRequest, HttpResponse, String>> servicios = new HashMap<>();
 
+    /**
+     * Starts the HTTP server.
+     *
+     * @param args the command line arguments
+     */
     public static void start(String[] args) {
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("Server started on port " + PORT);
@@ -26,6 +31,13 @@ public class HttpServer {
         }
     }
 
+    /**
+     * Handles an incoming client request.
+     *
+     * @param clientSocket the socket connected to the client
+     * @throws IOException if an I/O error occurs when reading from the input stream or writing to the output stream
+     * @throws URISyntaxException if the URI syntax is incorrect
+     */
     static void handleRequest(Socket clientSocket) throws IOException, URISyntaxException {
         BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         OutputStream out = clientSocket.getOutputStream();
@@ -59,6 +71,13 @@ public class HttpServer {
         }
     }
 
+    /**
+     * Processes an HTTP request and returns an HTTP response.
+     *
+     * @param req the HTTP request
+     * @param resp the HTTP response
+     * @return the HTTP response
+     */
     static String processRequest(HttpRequest req, HttpResponse resp) {
         BiFunction<HttpRequest, HttpResponse, String> service = servicios.get(req.getPath());
         System.out.println("service: " + service);
@@ -78,16 +97,34 @@ public class HttpServer {
         }
     }
 
+    /**
+     * Registers a service for a given route.
+     *
+     * @param route the route
+     * @param service the service
+     */
     public static void get(String route, BiFunction<HttpRequest, HttpResponse, String> service) {
         System.out.println("route: " + route);
         servicios.put("/app" + route, service);
     }
 
+    /**
+     * Sets the directory for static files.
+     *
+     * @param path the directory path
+     */
     public static void staticfiles(String path) {
         WEB_ROOT = path;
         System.out.println("Static files directory set to: " + WEB_ROOT);
     }
 
+    /**
+     * Serves a static file.
+     *
+     * @param path the file path
+     * @param out the output stream
+     * @throws IOException if an I/O error occurs when reading from the input stream or writing to the output stream
+     */
     static void serveStaticFile(String path, OutputStream out) throws IOException {
 
         if (path.equals("/")) path = "/index.html";
@@ -139,6 +176,12 @@ public class HttpServer {
         out.flush();
     }
 
+    /**
+     * Returns the content type of a file based on its extension.
+     *
+     * @param file the file
+     * @return the content type
+     */
     private static String getContentType(File file) {
         Map<String, String> mimeTypes = new HashMap<>();
         mimeTypes.put("html", "text/html");
