@@ -1,59 +1,66 @@
 package co.eci.edu.arep;
 
-import org.junit.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.BufferedReader;
-import java.io.StringReader;
-import java.net.ServerSocket;
-import java.net.URISyntaxException;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.util.function.BiFunction;
 
-public class HttpServerTest {
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-    @Test
-    void initializeServerSocket_shouldCreateBoundSocket() throws IOException {
-        ServerSocket serverSocket = HttpServer.initializeServerSocket(35000);
-        assertNotNull(serverSocket);
-        assertTrue(serverSocket.isBound());
-        serverSocket.close();
+class HttpServerTest {
+
+    @BeforeEach
+    void setUp() {
+        HttpServer.staticfiles("src/main/resources");
     }
 
     @Test
-    void generateResponse_shouldReturn200OKForValidRequest() throws IOException, URISyntaxException {
-        String request = "GET /data?name=John&age=25 HTTP/1.1";
-        BufferedReader reader = new BufferedReader(new StringReader(request));
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        HttpServer.generateResponse("/data", reader, out);
-        String response = out.toString();
-        assertTrue(response.contains("200 OK"));
-        assertTrue(response.contains("application/json"));
+    void testProcessRequest_WithRegisteredService() {
+        HttpServer.get("/test", (req, resp) -> "Hello, World!");
+        HttpRequest request = new HttpRequest("/app/test", "");
+        HttpResponse response = new HttpResponse();
+
+        String result = HttpServer.processRequest(request, response);
+
+        assertTrue(result.contains("HTTP/1.1 200 OK"));
+        assertTrue(result.contains("\"response\":\"Hello, World!\""));
     }
 
     @Test
-    void generateFileResponse_shouldReturn200OKForExistingFile() throws IOException {
-        String filePath = "/index.html";
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        HttpServer.generateFileResponse(filePath, out);
-        String response = out.toString();
-        assertTrue(response.contains("200 OK"));
-        assertTrue(response.contains("Content-Type: text/html"));
+    void testProcessRequest_WithUnregisteredService() {
+        HttpRequest request = new HttpRequest("/app/unknown", "");
+        HttpResponse response = new HttpResponse();
+
+        String result = HttpServer.processRequest(request, response);
+
+        assertTrue(result.contains("HTTP/1.1 404 Not Found"));
+        assertTrue(result.contains("404 Not Found"));
     }
 
     @Test
-    void sendErrorResponse_shouldReturn404NotFound() throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        HttpServer.sendErrorResponse(out, "404 Not Found");
-        String response = out.toString();
-        assertTrue(response.contains("404 Not Found"));
+    void testServeStaticFile_FileExists() throws Exception {
+        OutputStream out = new ByteArrayOutputStream();
+
+        HttpServer.serveStaticFile("/index.html", out);
+
+        String result = out.toString();
+        assertTrue(result.contains("HTTP/1.1 200 OK"));
+        assertTrue(result.contains("Content-Type: text/html"));
     }
 
     @Test
-    void generateFileResponse_shouldReturn404ForNonExistingFile() throws IOException {
-        String filePath = "/nonexistent.html";
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        HttpServer.generateFileResponse(filePath, out);
-        String response = out.toString();
-        assertTrue(response.contains("404 Not Found"));
+    void testServeStaticFile_FileNotExists() throws Exception {
+        OutputStream out = new ByteArrayOutputStream();
+
+        HttpServer.serveStaticFile("/nonexistent.html", out);
+
+        String result = out.toString();
+        assertTrue(result.contains("HTTP/1.1 404 Not Found"));
     }
+
 }

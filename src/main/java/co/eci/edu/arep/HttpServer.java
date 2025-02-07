@@ -26,7 +26,7 @@ public class HttpServer {
         }
     }
 
-    private static void handleRequest(Socket clientSocket) throws IOException, URISyntaxException {
+    static void handleRequest(Socket clientSocket) throws IOException, URISyntaxException {
         BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         OutputStream out = clientSocket.getOutputStream();
 
@@ -59,7 +59,7 @@ public class HttpServer {
         }
     }
 
-    private static String processRequest(HttpRequest req, HttpResponse resp) {
+    static String processRequest(HttpRequest req, HttpResponse resp) {
         BiFunction<HttpRequest, HttpResponse, String> service = servicios.get(req.getPath());
         System.out.println("service: " + service);
         System.out.println("req: " + req.getPath());
@@ -88,7 +88,7 @@ public class HttpServer {
         System.out.println("Static files directory set to: " + WEB_ROOT);
     }
 
-    private static void serveStaticFile(String path, OutputStream out) throws IOException {
+    static void serveStaticFile(String path, OutputStream out) throws IOException {
 
         if (path.equals("/")) path = "/index.html";
         System.out.println("Serving static file: " + path);
